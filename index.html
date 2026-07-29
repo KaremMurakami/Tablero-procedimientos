@@ -66,6 +66,7 @@ th{position:sticky;top:0;background:var(--navy);color:#fff;padding:10px 8px;text
 td{padding:8px;border-bottom:1px solid #e6ecf3;font-size:12px;vertical-align:top;background:#fff}
 tr:hover td{background:#f8fbff} tr.baja td{background:#f3f4f6;color:#7c8490}
 .status,.substatus{font-weight:750;font-size:12px}
+.note-editor{width:100%;min-width:220px;min-height:58px;resize:vertical;border:1px solid #cad4e1;border-radius:8px;padding:8px;font:inherit;font-size:12px;background:#fff;line-height:1.35}.note-editor:focus{outline:2px solid #9cc4ef;outline-offset:1px}.note-saved{display:block;margin-top:3px;font-size:10px;color:var(--green);opacity:0;transition:opacity .2s}.note-saved.show{opacity:1}
 .pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}
 .footer{font-size:11px;color:var(--muted);padding:12px 2px 18px}
 @media(max-width:1150px){.kpis{grid-template-columns:repeat(3,1fr)}.content{grid-template-columns:1fr}}
@@ -146,7 +147,7 @@ tr:hover td{background:#f8fbff} tr.baja td{background:#f3f4f6;color:#7c8490}
   </div>
  </section>
 </div>
-<div class="footer">Los porcentajes se calculan sobre documentos vigentes. Las bajas se conservan en el histórico, pero no afectan los indicadores.</div>
+<div class="footer">Los porcentajes se calculan sobre documentos vigentes. Las bajas se conservan en el histórico, pero no afectan los indicadores. Las notas se guardan automáticamente en este navegador.</div>
 </div>
 
 <script>
@@ -200,10 +201,29 @@ function render(){
  <td>${i+1}</td><td><b>${esc(d.clave)}</b></td><td>${esc(d.documento)}</td><td>${esc(d.direccion)}</td>
  <td><select class="status" data-id="${d.id}" style="color:${colors[d.estatus]};border-color:${colors[d.estatus]}">${statuses.map(s=>`<option ${s===d.estatus?"selected":""}>${s}</option>`).join("")}</select></td>
  <td>${d.estatus==="En Tesorería"?`<select class="substatus" data-id="${d.id}">${substatuses.map(s=>`<option ${s===d.subestatus?"selected":""}>${s}</option>`).join("")}</select>`:`<span class="pill" style="background:${colors[d.estatus]}18;color:${colors[d.estatus]}">${d.estatus}</span>`}</td>
- <td>${esc(d.notas||"—")}</td></tr>`).join("");
+ <td><textarea class="note-editor" data-id="${d.id}" placeholder="Agregar nota…">${esc(d.notas||"")}</textarea><span class="note-saved" id="saved-${d.id}">Guardado</span></td></tr>`).join("");
  document.getElementById("summary").textContent=`Mostrando ${list.length} de ${docs.length} registros; ${active().length} vigentes y ${docs.length-active().length} en baja.`;
  document.querySelectorAll(".status").forEach(el=>el.addEventListener("change",e=>{const d=docs.find(x=>x.id===Number(e.target.dataset.id));d.estatus=e.target.value;if(d.estatus==="En Tesorería"&&!d.subestatus)d.subestatus="En revisión por Enlace";if(d.estatus!=="En Tesorería")d.subestatus="";saveData();updateDashboard();render()}));
  document.querySelectorAll(".substatus").forEach(el=>el.addEventListener("change",e=>{const d=docs.find(x=>x.id===Number(e.target.dataset.id));d.subestatus=e.target.value;saveData();updateDashboard();render()}));
+ document.querySelectorAll(".note-editor").forEach(el=>{
+   let timer;
+   el.addEventListener("input",e=>{
+     clearTimeout(timer);
+     const id=Number(e.target.dataset.id);
+     const d=docs.find(x=>x.id===id);
+     d.notas=e.target.value;
+     timer=setTimeout(()=>{
+       saveData();
+       const msg=document.getElementById("saved-"+id);
+       if(msg){msg.classList.add("show");setTimeout(()=>msg.classList.remove("show"),900)}
+     },350);
+   });
+   el.addEventListener("blur",e=>{
+     const d=docs.find(x=>x.id===Number(e.target.dataset.id));
+     d.notas=e.target.value;
+     saveData();
+   });
+ });
 }
 function populate(){
  [...new Set(docs.map(d=>d.direccion))].sort((a,b)=>a.localeCompare(b,"es")).forEach(d=>document.getElementById("dir-filter").insertAdjacentHTML("beforeend",`<option value="${esc(d)}">${esc(d)}</option>`));
