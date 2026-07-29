@@ -3,273 +3,237 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light">
 <title>Tablero Ejecutivo de Seguimiento Documental</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
- --navy:#052e67;--navy2:#0b4c91;--ink:#172033;--muted:#687386;--bg:#eef3f9;
- --white:#fff;--line:#d9e2ee;--orange:#e86b19;--purple:#6a3ab2;--teal:#078b92;
- --green:#25823b;--gray:#6c7582;--red:#c83d4d;--soft-blue:#eaf3ff;
+ --navy:#062b63;--navy2:#0a4c91;--ink:#162033;--muted:#687386;--bg:#eef3f8;
+ --white:#fff;--line:#d8e1ec;--orange:#f06c12;--amber:#d89800;--purple:#6c3ab5;
+ --teal:#078e95;--green:#22833c;--gray:#6d7580;--red:#c83f4f;--blue:#1764b6;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-.app{max-width:1680px;margin:auto;padding:18px}
-.hero{background:linear-gradient(125deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;gap:20px;box-shadow:0 12px 30px #052e6724}
-.eyebrow{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.78;font-weight:800}
-.hero h1{margin:5px 0 4px;font-size:28px} .hero p{margin:0;opacity:.87}
-.cut{text-align:right;min-width:235px} .cut strong{display:block;font-size:15px} .cut span{font-size:13px;opacity:.85}
-.toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}
-button{border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:750;cursor:pointer;background:var(--navy);color:white}
-button.alt{background:white;color:var(--navy);border:1px solid var(--line)} button.warn{background:#fff0f1;color:#a52534;border:1px solid #f1c9ce}
-button:hover{filter:brightness(.98);transform:translateY(-1px)}
-.kpis{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:13px;margin-bottom:14px}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 17px;position:relative;overflow:hidden}
-.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
-.kpi .label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:850;color:var(--muted)}
-.kpi .main{display:flex;align-items:end;gap:10px;margin-top:8px} .kpi .num{font-size:35px;font-weight:900;color:var(--accent)} .kpi .pct{font-size:17px;font-weight:850;color:var(--accent);padding-bottom:4px}
-.kpi small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}
-.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-bottom:14px}
-.panel{background:#fff;border:1px solid var(--line);border-radius:17px;padding:17px}
-.panel h2{font-size:16px;color:var(--navy);margin:0 0 13px}
-.snapshot{position:relative;overflow:hidden;background:linear-gradient(145deg,#ffffff 0%,#f6f9ff 65%,#edf5ff 100%);min-height:360px}
-.snapshot:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:#0b4c9109;right:-80px;top:-100px}
-.snap-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}
-.snap-title h2{font-size:22px;margin-bottom:4px} .snap-title p{margin:0;color:var(--muted);font-size:13px}
-.stamp{background:var(--navy);color:#fff;border-radius:12px;padding:10px 12px;text-align:right;font-size:12px;box-shadow:0 8px 20px #052e6720}
-.stamp b{display:block;font-size:14px}
-.big-message{margin:24px 0 18px;padding:17px;border-left:5px solid var(--purple);background:#f6f0ff;border-radius:0 14px 14px 0;font-size:19px;line-height:1.4;font-weight:750}
-.big-message strong{color:var(--purple)}
-.stack{height:38px;border-radius:999px;display:flex;overflow:hidden;background:#e7edf5;box-shadow:inset 0 0 0 1px #d6deea}
-.seg{height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:900;min-width:0;transition:width .3s}
-.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}
-.leg{border:1px solid var(--line);border-radius:11px;padding:10px;background:#fff} .leg b{display:block;font-size:18px} .leg span{font-size:12px;color:var(--muted)}
-.narrative{margin-top:16px;color:#41506a;font-size:13px;line-height:1.55}
-.flow{min-height:360px}
-.flowline{display:flex;align-items:center;gap:7px;overflow:auto;padding:10px 4px 16px}
-.node{min-width:132px;border:2px solid var(--c);border-radius:14px;padding:12px 9px;text-align:center;background:#fff}
-.node .icon{width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,var(--c) 14%,white);display:grid;place-items:center;margin:auto;font-size:18px}
-.node b{display:block;margin-top:7px;font-size:12px;color:var(--c)} .node small{display:block;margin-top:5px;font-size:10px;color:var(--muted);line-height:1.35}
-.arrow{color:#7d8999;font-weight:900;font-size:21px}
-.branch{font-size:12px;padding:11px;border-radius:11px;background:#fff4f4;border:1px dashed #df6c77;color:#9e2d39;line-height:1.5}
-.branch strong{color:#841d28}
-.note-box{margin-top:10px;background:#edf7f8;border:1px solid #bce1e3;border-radius:11px;padding:11px;color:#235b60;font-size:12px;line-height:1.45}
-.controls{display:grid;grid-template-columns:2fr 1.2fr 1fr auto;gap:9px;margin-bottom:11px}
-input,select{font:inherit;width:100%;border:1px solid #cad5e3;border-radius:10px;padding:9px 10px;background:#fff}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px;max-height:660px}
-table{border-collapse:separate;border-spacing:0;width:100%;min-width:1190px}
-th{position:sticky;top:0;z-index:2;background:var(--navy);color:#fff;text-align:left;padding:10px 8px;font-size:11px}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.app{max-width:1680px;margin:auto;padding:16px}
+.hero{display:grid;grid-template-columns:280px 1fr 210px;gap:18px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 20px;margin-bottom:14px}
+.brand{display:flex;gap:12px;align-items:center} .crest{font-size:38px} .brand b{display:block;color:var(--navy);font-size:18px} .brand span{font-size:12px;color:var(--muted)}
+.title h1{margin:0;color:var(--navy);font-size:26px} .title p{margin:4px 0 0;color:var(--muted)}
+.cut{background:var(--navy);color:#fff;border-radius:14px;padding:12px 14px;text-align:center} .cut small{display:block;opacity:.8} .cut b{display:block;font-size:15px;margin-top:3px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+button{border:0;border-radius:10px;padding:10px 14px;background:var(--navy);color:#fff;font-weight:700;cursor:pointer}
+button.alt{background:#fff;color:var(--navy);border:1px solid var(--line)} button.warn{background:#fff1f2;color:#a52b38;border:1px solid #efcbd0}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:14px}
+.sidebar,.mainpanel{background:#fff;border:1px solid var(--line);border-radius:18px}
+.sidebar{padding:15px}
+.total-card{background:linear-gradient(140deg,var(--navy),var(--navy2));color:#fff;border-radius:15px;padding:16px;text-align:center;margin-bottom:12px}
+.total-card .n{font-size:40px;font-weight:900} .total-card small{opacity:.85}
+.sidebar h2{font-size:15px;color:var(--navy);text-align:center;margin:10px 0 12px}
+.stage-card{border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:10px;background:#fff}
+.stage-head{display:flex;justify-content:space-between;align-items:center;gap:10px} .stage-head strong{font-size:14px} .stage-head .num{font-size:25px;font-weight:900}
+.stage-head .pct{font-weight:800;font-size:13px}
+.subrow{display:flex;justify-content:space-between;gap:8px;padding-top:8px;margin-top:8px;border-top:1px solid #edf1f6;font-size:12px}
+.orange{color:var(--orange)} .purple{color:var(--purple)} .teal{color:var(--teal)} .green{color:var(--green)} .gray{color:var(--gray)}
+.donut{width:180px;height:180px;border-radius:50%;margin:16px auto 8px;position:relative;background:conic-gradient(var(--orange) 0 33%,var(--purple) 33% 74%,var(--teal) 74% 86%,var(--green) 86% 100%)}
+.donut:after{content:"";position:absolute;inset:38px;background:#fff;border-radius:50%}
+.donut-center{position:absolute;inset:0;display:grid;place-items:center;z-index:1;text-align:center;font-weight:900;color:var(--navy)} .donut-center span{display:block;font-size:30px}
+.legend{font-size:12px;display:grid;gap:6px} .legend div{display:flex;justify-content:space-between;gap:10px}
+.mainpanel{padding:14px}
+.flow-title{font-size:16px;color:var(--navy);font-weight:800;margin-bottom:10px}
+.flow-wrap{position:relative;border:1px solid var(--line);border-radius:16px;padding:18px 14px;background:#fff}
+.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;align-items:start}
+.node{border:2px solid var(--c);border-radius:16px;padding:13px 10px;text-align:center;min-height:150px;position:relative;background:#fff}
+.node:after{content:"→";position:absolute;right:-18px;top:55px;color:#667085;font-size:24px;font-weight:800}
+.node:last-child:after{display:none}
+.icon{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;margin:auto;background:color-mix(in srgb,var(--c) 14%,white);font-size:24px}
+.node b{display:block;color:var(--c);margin-top:8px;font-size:13px} .node small{display:block;margin-top:7px;color:var(--muted);font-size:11px;line-height:1.4}
+.branch-label{position:absolute;top:122px;left:56%;font-size:11px;font-weight:800;color:var(--teal)}
+.return{margin-top:14px;border:1px dashed #e0747e;background:#fff4f5;color:#9b2a36;padding:11px;border-radius:11px;font-size:12px}
+.rule{margin-top:10px;background:#edf8f9;border:1px solid #bee3e5;color:#245f63;border-radius:11px;padding:11px;font-size:12px}
+.exec{margin-top:12px;background:#f5efff;border-left:5px solid var(--purple);padding:14px;border-radius:0 12px 12px 0;font-size:15px;line-height:1.5}
+.exec strong{color:var(--purple)}
+.table-panel{margin-top:14px;border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff}
+.table-panel h2{margin:0 0 12px;color:var(--navy);font-size:16px}
+.controls{display:grid;grid-template-columns:2fr 1.2fr 1.1fr auto;gap:9px;margin-bottom:10px}
+input,select{width:100%;font:inherit;border:1px solid #cad5e2;border-radius:9px;padding:9px;background:#fff}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;max-height:620px}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:1250px}
+th{position:sticky;top:0;background:var(--navy);color:#fff;padding:10px 8px;font-size:11px;text-align:left;z-index:2}
 td{padding:8px;border-bottom:1px solid #e7edf4;font-size:12px;vertical-align:top;background:#fff}
-tr:hover td{background:#f8fbff} tr.baja td{background:#f5f6f8;color:#7b838e;text-decoration:none}
-.status{font-weight:800;border-width:1px;padding:7px 8px;font-size:12px}
-.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-weight:800;font-size:11px}
+tr:hover td{background:#f8fbff} tr.baja td{background:#f3f4f6;color:#7b838e}
+.status,.substatus{font-weight:700;font-size:12px}
+.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}
 .summary{font-size:12px;color:var(--muted);margin:5px 0 10px}
-.footer{font-size:11px;color:var(--muted);padding:12px 3px 20px;line-height:1.45}
-.edit-hint{font-size:11px;color:#8792a3;margin-top:8px}
-@media(max-width:1050px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}}
-@media(max-width:650px){.app{padding:9px}.hero{align-items:flex-start}.cut{display:none}.kpis{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.hero h1{font-size:22px}.legend{grid-template-columns:1fr}}
-@media print{
- body{background:#fff} .app{padding:0;max-width:none} .toolbar,.controls,.edit-hint{display:none!important}
- .hero,.panel,.kpi{box-shadow:none;break-inside:avoid} .grid{grid-template-columns:1fr} .table-wrap{max-height:none;overflow:visible}
- th{position:static} .snapshot{min-height:auto} .flow{min-height:auto}
-}
+.footer{font-size:11px;color:var(--muted);padding:12px 2px}
+@media(max-width:1120px){.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.sidebar h2,.donut,.legend{grid-column:1/-1}.flow{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.hero{grid-template-columns:1fr}.cut{text-align:left}.sidebar{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.node:after{content:"↓";right:50%;top:auto;bottom:-22px}.controls{grid-template-columns:1fr}}
+@media print{body{background:#fff}.app{padding:0}.toolbar,.controls{display:none}.layout{grid-template-columns:330px 1fr}.table-wrap{max-height:none;overflow:visible}th{position:static}}
 </style>
 </head>
 <body>
 <div class="app" id="full-report">
- <header class="hero">
-   <div>
-     <div class="eyebrow">Tesorería Municipal de Monterrey · Dirección de Enlace</div>
-     <h1>Tablero Ejecutivo de Seguimiento Documental</h1>
-     <p>Distribución actual de documentos por etapa del proceso de revisión y publicación.</p>
+<header class="hero">
+ <div class="brand"><div class="crest">🏛️</div><div><b>TESORERÍA</b><span>Municipal de Monterrey</span></div></div>
+ <div class="title"><h1>TABLERO EJECUTIVO DE SEGUIMIENTO DOCUMENTAL</h1><p>Dirección de Enlace</p></div>
+ <div class="cut"><small>CORTE AL</small><b id="cut-date"></b><span id="cut-time"></span></div>
+</header>
+
+<div class="toolbar">
+ <button id="btn-cut">⏱ Actualizar corte</button>
+ <button id="btn-pdf">⬇ Descargar PDF</button>
+ <button class="alt" id="btn-img">▣ Descargar imagen</button>
+ <button class="alt" id="btn-csv">▤ Exportar CSV</button>
+ <button class="warn" id="btn-reset">↺ Restablecer</button>
+</div>
+
+<div class="layout">
+ <aside class="sidebar">
+  <div class="total-card"><div>DOCUMENTOS VIGENTES</div><div class="n" id="s-total">0</div><small><span id="s-bajas">0</span> dados de baja</small></div>
+  <h2>¿DÓNDE ESTÁ EL TRABAJO?</h2>
+
+  <div class="stage-card">
+   <div class="stage-head"><strong class="orange">🏛️ TESORERÍA</strong><div><span class="num orange" id="s-tes">0</span> <span class="pct orange" id="sp-tes">0%</span></div></div>
+   <div class="subrow"><span>👩‍💼 En revisión por Enlace</span><b id="s-enlace">0</b></div>
+   <div class="subrow"><span>🏢 En elaboración/correcciones por el área</span><b id="s-area">0</b></div>
+   <div class="subrow"><span>⏸ No iniciados</span><b id="s-noini">0</b></div>
+  </div>
+
+  <div class="stage-card">
+   <div class="stage-head"><strong class="purple">👥 GESTIÓN</strong><div><span class="num purple" id="s-ges">0</span> <span class="pct purple" id="sp-ges">0%</span></div></div>
+  </div>
+
+  <div class="stage-card">
+   <div class="stage-head"><strong class="teal">⚖️ MEJORA REGULATORIA</strong><div><span class="num teal" id="s-mej">0</span> <span class="pct teal" id="sp-mej">0%</span></div></div>
+  </div>
+
+  <div class="stage-card">
+   <div class="stage-head"><strong class="green">✅ PUBLICADOS</strong><div><span class="num green" id="s-pub">0</span> <span class="pct green" id="sp-pub">0%</span></div></div>
+  </div>
+
+  <div class="donut" id="donut"><div class="donut-center"><div><span id="d-total">0</span>VIGENTES</div></div></div>
+  <div class="legend">
+   <div><span>🟠 Tesorería</span><b id="l-tes">0</b></div>
+   <div><span>🟣 Gestión</span><b id="l-ges">0</b></div>
+   <div><span>🔵 Mejora</span><b id="l-mej">0</b></div>
+   <div><span>🟢 Publicados</span><b id="l-pub">0</b></div>
+  </div>
+ </aside>
+
+ <main class="mainpanel">
+  <div class="flow-title">FLUJO REAL DE REVISIÓN Y PUBLICACIÓN</div>
+  <section class="flow-wrap">
+   <div class="flow">
+    <div class="node" style="--c:var(--gray)"><div class="icon">⏱</div><b>No iniciado</b><small>La dirección todavía no comienza.</small></div>
+    <div class="node" style="--c:var(--orange)"><div class="icon">🏢</div><b>Elaboración por el área</b><small>La dirección responsable integra o corrige el documento.</small></div>
+    <div class="node" style="--c:var(--amber)"><div class="icon">👩‍💼</div><b>Revisión por Enlace</b><small>Se valida contenido, formato y flujo.</small></div>
+    <div class="node" style="--c:var(--teal)"><div class="icon">⚖️</div><b>Vo.Bo. Mejora</b><small>Solo trámites y servicios; previo a Gestión.</small></div>
+    <div class="node" style="--c:var(--purple)"><div class="icon">👥</div><b>Revisión por Gestión</b><small>Revisión y autorización para publicar.</small></div>
+    <div class="node" style="--c:var(--green)"><div class="icon">✅</div><b>Publicado</b><small>Documento firmado y publicado.</small></div>
    </div>
-   <div class="cut"><strong id="cut-date">Corte</strong><span id="cut-time"></span></div>
- </header>
+   <div class="return"><b>↩ Regla de retorno:</b> cualquier observación emitida por Enlace, Mejora Regulatoria o Gestión regresa al área responsable para su atención, aunque el seguimiento se canalice a través de Enlace.</div>
+   <div class="rule"><b>ℹ Mejora Regulatoria:</b> aplica únicamente a trámites y servicios. Una vez obtenido el Vo.Bo., el documento se envía a Gestión para revisión y autorización de publicación.</div>
+  </section>
 
- <div class="toolbar">
-   <button onclick="setCutNow()">⏱ Actualizar corte</button>
-   <button onclick="downloadPDF()">⬇ Descargar concentrado PDF</button>
-   <button class="alt" onclick="downloadSnapshot()">▣ Descargar imagen del estatus</button>
-   <button class="alt" onclick="exportCSV()">▤ Exportar CSV</button>
-   <button class="warn" onclick="resetData()">↺ Restablecer datos</button>
- </div>
+  <div class="exec" id="exec-message"></div>
 
- <section class="kpis">
-   <div class="kpi" style="--accent:var(--navy)"><div class="label">Documentos vigentes</div><div class="main"><span class="num" id="k-total">0</span><span class="pct">100%</span></div><small>Excluye documentos dados de baja.</small></div>
-   <div class="kpi" style="--accent:var(--orange)"><div class="label">En Tesorería</div><div class="main"><span class="num" id="k-tes">0</span><span class="pct" id="p-tes">0%</span></div><small>Elaboración y revisión interna por Enlace.</small></div>
-   <div class="kpi" style="--accent:var(--purple)"><div class="label">En Gestión / Mejora</div><div class="main"><span class="num" id="k-ext">0</span><span class="pct" id="p-ext">0%</span></div><small id="split-ext">Gestión 0 · Mejora 0</small></div>
-   <div class="kpi" style="--accent:var(--green)"><div class="label">Publicados</div><div class="main"><span class="num" id="k-pub">0</span><span class="pct" id="p-pub">0%</span></div><small>Documentos concluidos y publicados.</small></div>
- </section>
-
- <section class="grid">
-   <article class="panel snapshot" id="snapshot">
-     <div class="snap-top">
-       <div class="snap-title"><h2>Estado ejecutivo del proyecto</h2><p>Lectura rápida para toma de decisiones</p></div>
-       <div class="stamp"><span>CORTE</span><b id="snap-date"></b><span id="snap-time"></span></div>
-     </div>
-     <div class="big-message" id="message">La mayor parte de los documentos se encuentra en revisión fuera de Tesorería.</div>
-     <div class="stack" aria-label="Distribución por estatus">
-       <div class="seg" id="bar-tes" style="background:var(--orange)"></div>
-       <div class="seg" id="bar-ext" style="background:linear-gradient(90deg,var(--teal),var(--purple))"></div>
-       <div class="seg" id="bar-pub" style="background:var(--green)"></div>
-     </div>
-     <div class="legend">
-       <div class="leg"><span>En Tesorería</span><b style="color:var(--orange)" id="leg-tes"></b><small id="leg-tes-p"></small></div>
-       <div class="leg"><span>Gestión / Mejora</span><b style="color:var(--purple)" id="leg-ext"></b><small id="leg-ext-p"></small></div>
-       <div class="leg"><span>Publicados</span><b style="color:var(--green)" id="leg-pub"></b><small id="leg-pub-p"></small></div>
-     </div>
-     <div class="narrative" id="narrative"></div>
-   </article>
-
-   <article class="panel flow">
-     <h2>Flujo real de revisión y publicación</h2>
-     <div class="flowline">
-       <div class="node" style="--c:#707984"><div class="icon">◷</div><b>No iniciado</b><small>La dirección aún no comienza.</small></div><span class="arrow">→</span>
-       <div class="node" style="--c:#1262b3"><div class="icon">✎</div><b>Elaboración por el área</b><small>La dirección responsable integra el documento.</small></div><span class="arrow">→</span>
-       <div class="node" style="--c:#d79500"><div class="icon">⌕</div><b>Revisión por Enlace</b><small>Se valida contenido, formato y flujo.</small></div><span class="arrow">→</span>
-       <div class="node" style="--c:var(--teal)"><div class="icon">✓</div><b>Vo.Bo. Mejora</b><small>Solo trámites y servicios; previo a Gestión.</small></div><span class="arrow">→</span>
-       <div class="node" style="--c:var(--purple)"><div class="icon">👥</div><b>Revisión por Gestión</b><small>Revisión y autorización para publicar.</small></div><span class="arrow">→</span>
-       <div class="node" style="--c:var(--green)"><div class="icon">✓</div><b>Publicado</b><small>Documento firmado y publicado.</small></div>
-     </div>
-     <div class="branch"><strong>Regla de retorno:</strong> cualquier observación emitida por Enlace, Mejora Regulatoria o Gestión regresa al área responsable para su atención, aunque el seguimiento se canalice a través de Enlace.</div>
-     <div class="note-box">El Vo.Bo. de Mejora Regulatoria aplica únicamente a trámites y servicios. Una vez obtenido, el documento se envía a Gestión para revisión y autorización de publicación.</div>
-   </article>
- </section>
-
- <section class="panel">
-   <h2>Concentrado de documentos</h2>
+  <section class="table-panel">
+   <h2>CONCENTRADO DE DOCUMENTOS</h2>
    <div class="controls">
-     <input id="search" type="search" placeholder="Buscar documento, clave, dirección o nota…">
-     <select id="dir-filter"><option value="">Todas las direcciones</option></select>
-     <select id="status-filter"><option value="">Todos los estatus</option></select>
-     <button class="alt" onclick="clearFilters()">Limpiar</button>
+    <input id="search" type="search" placeholder="Buscar documento, clave, dirección o nota…">
+    <select id="dir-filter"><option value="">Todas las direcciones</option></select>
+    <select id="status-filter"><option value="">Todas las etapas</option></select>
+    <button class="alt" id="btn-clear">Limpiar</button>
    </div>
    <div class="summary" id="summary"></div>
    <div class="table-wrap">
     <table>
-     <thead><tr><th>#</th><th>Clave</th><th>Documento</th><th>Dirección responsable</th><th>Estatus editable</th><th>Lectura por etapa</th><th>Notas internas</th></tr></thead>
+     <thead><tr><th>#</th><th>Clave</th><th>Documento</th><th>Dirección responsable</th><th>Etapa principal</th><th>Detalle dentro de Tesorería</th><th>Notas</th></tr></thead>
      <tbody id="tbody"></tbody>
     </table>
    </div>
-   <div class="edit-hint">Los cambios de estatus se guardan automáticamente en este navegador. Para conservarlos al publicar una nueva versión, descarga el CSV actualizado.</div>
- </section>
- <div class="footer">Nota metodológica: los porcentajes se calculan sobre documentos vigentes. Los documentos en baja permanecen en el histórico, pero no forman parte del total ni de los porcentajes. “Gestión / Mejora” agrupa ambos puntos de revisión externos a Tesorería, manteniendo su desglose visible.</div>
+  </section>
+ </main>
+</div>
+<div class="footer">Los porcentajes se calculan únicamente sobre documentos vigentes. Las bajas permanecen visibles en el histórico, pero no afectan los indicadores.</div>
 </div>
 
 <script>
-const seedData = [{"id": 1, "direccion": "TESORERIA MUNICIPAL", "clave": "MO-TM-O1", "documento": "Manual de Organización de la Tesoreria Municipal", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 2, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "L-SFA-CCP-01", "documento": "Depuración de Saldos Contables de las Cuentas de Balance del Municipio de Monterrey.", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 3, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-01", "documento": "Descuento en Multas de Tránsito", "notas": "Cambio de nombre: Multas de Tránsito", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 4, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-02", "documento": "Pago de Permisos para Estacionamientos Exclusivos", "notas": "Pago de Derechos de Refrendo de Estacionamiento Exclusivo", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 5, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-11", "documento": "Pago de Permiso de Sitios de Auto", "notas": "BAJA", "estatus": "Baja", "subestatus": ""}, {"id": 6, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-01", "documento": "Pago Sobre la Adquisición de Inmuebles", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 7, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-21", "documento": "Devolución de Multas de Tránsito", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 8, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-23", "documento": "Movimientos al Padrón de Contribuyentes de Refrendos", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 9, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-03", "documento": "Pago del Impuesto Predial", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 10, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-06", "documento": "Actualización de Construcción en el Padrón Catastral", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 11, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-07", "documento": "Certificación de No Adeudo de Impuesto Predial", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 12, "direccion": "Dirección de Planeación Presupuestal", "clave": "L-TM-PLP-02", "documento": "Lineamiento de Implementación Aplicación y Operación del Presupuesto", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 13, "direccion": "Dirección de Planeación Presupuestal", "clave": "L-TM-PLP-01", "documento": "Lineamientos de Control Presupuestal", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 14, "direccion": "Dirección de Planeación Presupuestal", "clave": "P-TM-PLP-03", "documento": "Autorizacion Presupuestal", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 15, "direccion": "Dirección de Planeación Presupuestal", "clave": "P-TM-PLP-01", "documento": "Elaboracion de Presupuesto de Egresos", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 16, "direccion": "Dirección de Planeación Presupuestal", "clave": "P-TM-PLP-02", "documento": "Elaboracion de Proyecto de Iniciativa de Ley de Ingresos", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 17, "direccion": "Dirección de Ingresos", "clave": "P-TM-ING-02", "documento": "Captura de Multas", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 18, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-04", "documento": "Instalación de Parquímetros", "notas": "Cambio nombre: Instalación de cajón en espacios de parquímetros", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 19, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-05", "documento": "Levantamiento de Actas de Infracción", "notas": "Cambio nombre: Levantamiento de Infracciones de Parqímetros", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 20, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-06", "documento": "Retiro Definitivo y Temporal de Parquímetros", "notas": "Retiro Definitivo y Temporal de Espacios de Parquimetros", "estatus": "En Tesorería", "subestatus": ""}, {"id": 21, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-07", "documento": "Mantenimiento de Parquímetros", "notas": "Cambio nombre: Mantenimiento de Espacios de Parquimetros", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 22, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-08", "documento": "Recolección de Monedas", "notas": "BAJA", "estatus": "Baja", "subestatus": ""}, {"id": 23, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-09", "documento": "Conteo de Recolección Bóveda", "notas": "Cambio nombre: Recepcion de Recolección en el sistema KIGO", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 24, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-10", "documento": "Daños a Parquímetros", "notas": "BAJA", "estatus": "Baja", "subestatus": ""}, {"id": 25, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-12", "documento": "Captura de Infracciones de Parquímetros", "notas": "Cambio nombre: Consola/Descarga de Infraccines e Parquímetros", "estatus": "En Tesorería", "subestatus": ""}, {"id": 26, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-13", "documento": "Recepción de Documentos", "notas": "Recepción de Doucmentos de la Dirección", "estatus": "En Tesorería", "subestatus": ""}, {"id": 27, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-14", "documento": "Ediciones y Cancelaciones por Errores de Captura", "notas": "Cancelaciones de Infracciones de Parquimetros por error de Captura de Inspección", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 28, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-15", "documento": "Venta de Merma", "notas": "BAJA", "estatus": "Baja", "subestatus": ""}, {"id": 29, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-16", "documento": "Procedimiento Administrativo de Ejecución", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 30, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-17", "documento": "Permisos de Parquímetros", "notas": "Permisos de Estacionamiento en Areas de Parquimetros", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 31, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-18", "documento": "Aclaraciones y Cancelación de Infracciones de Parquímetros", "notas": "", "estatus": "En Tesorería", "subestatus": ""}, {"id": 32, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-19", "documento": "Cobro a Terrenos Municipales Desafectados", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 33, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-20", "documento": "Pago del Impuesto Sobre Diversiones y Espectáculos Públicos", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 34, "direccion": "Dirección de Ingresos", "clave": "P-TM-ING-01", "documento": "Devolución de Pagos por Resolución Judicial o Administrativa", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 35, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-24", "documento": "Expedición de Órdenes de Pago de Refrendos y Constancias de no Adeudo PAGO DE DERECHOS POR REFRENDO", "notas": "SE LE CAMBIO NOMBRE PAGO DE DE DERECHOS POR REFRENDO", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 36, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-25", "documento": "Obras Integrales", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 37, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-26", "documento": "Solicitud de Permiso Exclusivo de Cajones de Estacionamiento para Uso Comercial", "notas": "Se simplifica en 1 procedimiento:           Solicitud de Permiso de Cajones de Estacionamiento Exclusivo", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 38, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-27", "documento": "Solicitud de Permiso Exclusivo de Cajones de Estacionamiento para Uso Residencial", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 39, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-28", "documento": "Solicitud de Permiso para Cajón de Estacionamiento Exclusivo para Personas con Discapacidad", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 40, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-29", "documento": "Solicitud de Cajones de Estacionamiento Exclusivo para la Instalación de Bases de Taxis", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 41, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-30", "documento": "Control de Captura de Boletas de Multas de Tránsito", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 42, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-02", "documento": "Tarifa Unica Especial para el Pago del Impuesto Predial", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 43, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-04", "documento": "Inspección de Lotes Baldíos", "notas": "Se simplifica en uno solo: Inspección y pago de lotes baldíos", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 44, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-05", "documento": "Pago de Multas de Lotes Baldíos o Casas Desocupadas", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 45, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-TM-CCP-01", "documento": "Amortizacion de Deuda Publica e Intereses y Registro Contable", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 46, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-02", "documento": "Conciliaciones Bancarias", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 47, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-03", "documento": "Donativos en Efectivo y Especie", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 48, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-04", "documento": "Registro y Conciliacion de Cheques Devueltos", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 49, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-05", "documento": "Registro Contable de los Ingresos por Concepto de Participaciones y Aportaciones Subsidios y Convenios", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 50, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-06", "documento": "Registro del Ingreso y Gasto de Control Vehicular", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 51, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-07", "documento": "Registro de Obras Publicas Concluidas", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 52, "direccion": "Dirección de Egresos", "clave": "L-SFA-EGR-01", "documento": "Lineamiento para el Ejercicio y Pago del Gasto", "notas": "", "estatus": "En Tesorería", "subestatus": ""}, {"id": 53, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-08", "documento": "Elaboración y presentación de Informes Financieros", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 54, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-09", "documento": "Alta de Bienes Inmuebles, Muebles e Intangibles y Cálculo de la Depreciación y Amortización", "notas": "", "estatus": "En Tesorería", "subestatus": ""}, {"id": 55, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-10", "documento": "Entero de ISR Retnido por Concepto de Pago de Sueldos Honorarios Asimilados a Sueldos Servicios Profesionales y Arrendamiento", "notas": "", "estatus": "En Tesorería", "subestatus": ""}, {"id": 56, "direccion": "Dirección de Egresos", "clave": "P-SFA-EGR-03", "documento": "Control y Administración de Cuentas Bancarias", "notas": "", "estatus": "En Tesorería", "subestatus": ""}, {"id": 57, "direccion": "Dirección de Egresos", "clave": "P-SFA-EGR-02", "documento": "Impresión, Distribución y Pago de Nómina Municipal", "notas": "", "estatus": "En Tesorería", "subestatus": ""}, {"id": 58, "direccion": "Dirección de Egresos", "clave": "P-SFA-EGR-04", "documento": "Manejo y Control del Fondo de Operación y Caja Chica", "notas": "", "estatus": "En Tesorería", "subestatus": ""}, {"id": 59, "direccion": "Dirección de Egresos", "clave": "P-SFA-EGR-01", "documento": "Registro y Control de Cuentas por Pagar", "notas": "", "estatus": "En Tesorería", "subestatus": ""}, {"id": 60, "direccion": "Dirección de Patrimonio", "clave": "L-SFA-PAT-01", "documento": "Registro y Control de Bienes Muebles e Inmuebles", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 61, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-01", "documento": "Expedicion de Constancia de No Afectacion a Bienes del Dominio Publico", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 62, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-02", "documento": "Expedicion de Constancia de Identificacion de Areas Municipales", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 63, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-03", "documento": "Altas de Bienes Muebles e Inmbuebles", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 64, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-ING-05", "documento": "Pago de Deducible en Caso de Siniestro", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 65, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-04", "documento": "Baja de Bienes", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 66, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-06", "documento": "Expedición de Visto Bueno de Recepción de Áreas Municipales Cedidas por Fraccionamientos en la Terminación de Obra y Liberación de Garantías Ante la Secretaría de Desarrollo Urbano Sostenible", "notas": "Cambio de normbre: Visto bueno areas cedidas por fraccionador", "estatus": "En Gestión", "subestatus": ""}, {"id": 67, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-07", "documento": "Cambio de Ubicacion de Bienes Muebles", "notas": "Cambio de normbre: Actualización de resguardante de bienes muebles", "estatus": "En Gestión", "subestatus": ""}, {"id": 68, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-08", "documento": "Proceso de Dictamen", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 69, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-09", "documento": "Indemnización de Bienes Muebles e Inmuebles", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 70, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-10", "documento": "Arrendamiento de Bienes Propiedad Municipal", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 71, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-11", "documento": "Enajenación de Bienes Propiedad Municipal", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 72, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-TMU-02", "documento": "EJERCICIO DEL RECURSO FEDERAL DEL RAMO 33 APORTACIONES", "notas": "PENDIENTE    ACTUALLIZAR", "estatus": "En Tesorería", "subestatus": "No iniciado"}];
-const STORAGE_KEY = "tesoreria_tablero_documental_v1";
-const CUT_KEY = "tesoreria_tablero_corte_v1";
-const statuses = ["En Tesorería","En Mejora Regulatoria","En Gestión","Publicado","Baja"];
-const colors = {
- "En Tesorería":"#e86b19","En Mejora Regulatoria":"#078b92","En Gestión":"#6a3ab2","Publicado":"#25823b","Baja":"#6c7582"
-};
-let docs = loadData();
+const seedData = [{"id": 1, "direccion": "TESORERIA MUNICIPAL", "clave": "MO-TM-O1", "documento": "Manual de Organización de la Tesoreria Municipal", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 2, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "L-SFA-CCP-01", "documento": "Depuración de Saldos Contables de las Cuentas de Balance del Municipio de Monterrey.", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 3, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-01", "documento": "Descuento en Multas de Tránsito", "notas": "Cambio de nombre: Multas de Tránsito", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 4, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-02", "documento": "Pago de Permisos para Estacionamientos Exclusivos", "notas": "Pago de Derechos de Refrendo de Estacionamiento Exclusivo", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 5, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-11", "documento": "Pago de Permiso de Sitios de Auto", "notas": "BAJA", "estatus": "Baja", "subestatus": ""}, {"id": 6, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-01", "documento": "Pago Sobre la Adquisición de Inmuebles", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 7, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-21", "documento": "Devolución de Multas de Tránsito", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 8, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-23", "documento": "Movimientos al Padrón de Contribuyentes de Refrendos", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 9, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-03", "documento": "Pago del Impuesto Predial", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 10, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-06", "documento": "Actualización de Construcción en el Padrón Catastral", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 11, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-07", "documento": "Certificación de No Adeudo de Impuesto Predial", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 12, "direccion": "Dirección de Planeación Presupuestal", "clave": "L-TM-PLP-02", "documento": "Lineamiento de Implementación Aplicación y Operación del Presupuesto", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 13, "direccion": "Dirección de Planeación Presupuestal", "clave": "L-TM-PLP-01", "documento": "Lineamientos de Control Presupuestal", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 14, "direccion": "Dirección de Planeación Presupuestal", "clave": "P-TM-PLP-03", "documento": "Autorizacion Presupuestal", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 15, "direccion": "Dirección de Planeación Presupuestal", "clave": "P-TM-PLP-01", "documento": "Elaboracion de Presupuesto de Egresos", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 16, "direccion": "Dirección de Planeación Presupuestal", "clave": "P-TM-PLP-02", "documento": "Elaboracion de Proyecto de Iniciativa de Ley de Ingresos", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 17, "direccion": "Dirección de Ingresos", "clave": "P-TM-ING-02", "documento": "Captura de Multas", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 18, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-04", "documento": "Instalación de Parquímetros", "notas": "Cambio nombre: Instalación de cajón en espacios de parquímetros", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 19, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-05", "documento": "Levantamiento de Actas de Infracción", "notas": "Cambio nombre: Levantamiento de Infracciones de Parqímetros", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 20, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-06", "documento": "Retiro Definitivo y Temporal de Parquímetros", "notas": "Retiro Definitivo y Temporal de Espacios de Parquimetros", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 21, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-07", "documento": "Mantenimiento de Parquímetros", "notas": "Cambio nombre: Mantenimiento de Espacios de Parquimetros", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 22, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-08", "documento": "Recolección de Monedas", "notas": "BAJA", "estatus": "Baja", "subestatus": ""}, {"id": 23, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-09", "documento": "Conteo de Recolección Bóveda", "notas": "Cambio nombre: Recepcion de Recolección en el sistema KIGO", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 24, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-10", "documento": "Daños a Parquímetros", "notas": "BAJA", "estatus": "Baja", "subestatus": ""}, {"id": 25, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-12", "documento": "Captura de Infracciones de Parquímetros", "notas": "Cambio nombre: Consola/Descarga de Infraccines e Parquímetros", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 26, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-13", "documento": "Recepción de Documentos", "notas": "Recepción de Doucmentos de la Dirección", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 27, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-14", "documento": "Ediciones y Cancelaciones por Errores de Captura", "notas": "Cancelaciones de Infracciones de Parquimetros por error de Captura de Inspección", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 28, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-15", "documento": "Venta de Merma", "notas": "BAJA", "estatus": "Baja", "subestatus": ""}, {"id": 29, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-16", "documento": "Procedimiento Administrativo de Ejecución", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 30, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-17", "documento": "Permisos de Parquímetros", "notas": "Permisos de Estacionamiento en Areas de Parquimetros", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 31, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-18", "documento": "Aclaraciones y Cancelación de Infracciones de Parquímetros", "notas": "", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 32, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-19", "documento": "Cobro a Terrenos Municipales Desafectados", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 33, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-20", "documento": "Pago del Impuesto Sobre Diversiones y Espectáculos Públicos", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 34, "direccion": "Dirección de Ingresos", "clave": "P-TM-ING-01", "documento": "Devolución de Pagos por Resolución Judicial o Administrativa", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 35, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-24", "documento": "Expedición de Órdenes de Pago de Refrendos y Constancias de no Adeudo PAGO DE DERECHOS POR REFRENDO", "notas": "SE LE CAMBIO NOMBRE PAGO DE DE DERECHOS POR REFRENDO", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 36, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-25", "documento": "Obras Integrales", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 37, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-26", "documento": "Solicitud de Permiso Exclusivo de Cajones de Estacionamiento para Uso Comercial", "notas": "Se simplifica en 1 procedimiento:           Solicitud de Permiso de Cajones de Estacionamiento Exclusivo", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 38, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-27", "documento": "Solicitud de Permiso Exclusivo de Cajones de Estacionamiento para Uso Residencial", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 39, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-28", "documento": "Solicitud de Permiso para Cajón de Estacionamiento Exclusivo para Personas con Discapacidad", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 40, "direccion": "Dirección de Parquimetros", "clave": "P-SFA-ING-29", "documento": "Solicitud de Cajones de Estacionamiento Exclusivo para la Instalación de Bases de Taxis", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 41, "direccion": "Dirección de Ingresos", "clave": "P-SFA-ING-30", "documento": "Control de Captura de Boletas de Multas de Tránsito", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 42, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-02", "documento": "Tarifa Unica Especial para el Pago del Impuesto Predial", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 43, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-04", "documento": "Inspección de Lotes Baldíos", "notas": "Se simplifica en uno solo: Inspección y pago de lotes baldíos", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 44, "direccion": "Dirección de Recaudación Inmobiliaria", "clave": "P-SFA-REI-05", "documento": "Pago de Multas de Lotes Baldíos o Casas Desocupadas", "notas": "", "estatus": "En Tesorería", "subestatus": "No iniciado"}, {"id": 45, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-TM-CCP-01", "documento": "Amortizacion de Deuda Publica e Intereses y Registro Contable", "notas": "ACTUALIZADO", "estatus": "Publicado", "subestatus": ""}, {"id": 46, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-02", "documento": "Conciliaciones Bancarias", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 47, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-03", "documento": "Donativos en Efectivo y Especie", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 48, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-04", "documento": "Registro y Conciliacion de Cheques Devueltos", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 49, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-05", "documento": "Registro Contable de los Ingresos por Concepto de Participaciones y Aportaciones Subsidios y Convenios", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 50, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-06", "documento": "Registro del Ingreso y Gasto de Control Vehicular", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 51, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-07", "documento": "Registro de Obras Publicas Concluidas", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 52, "direccion": "Dirección de Egresos", "clave": "L-SFA-EGR-01", "documento": "Lineamiento para el Ejercicio y Pago del Gasto", "notas": "", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 53, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-08", "documento": "Elaboración y presentación de Informes Financieros", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 54, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-09", "documento": "Alta de Bienes Inmuebles, Muebles e Intangibles y Cálculo de la Depreciación y Amortización", "notas": "", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 55, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-SFA-CCP-10", "documento": "Entero de ISR Retnido por Concepto de Pago de Sueldos Honorarios Asimilados a Sueldos Servicios Profesionales y Arrendamiento", "notas": "", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 56, "direccion": "Dirección de Egresos", "clave": "P-SFA-EGR-03", "documento": "Control y Administración de Cuentas Bancarias", "notas": "", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 57, "direccion": "Dirección de Egresos", "clave": "P-SFA-EGR-02", "documento": "Impresión, Distribución y Pago de Nómina Municipal", "notas": "", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 58, "direccion": "Dirección de Egresos", "clave": "P-SFA-EGR-04", "documento": "Manejo y Control del Fondo de Operación y Caja Chica", "notas": "", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 59, "direccion": "Dirección de Egresos", "clave": "P-SFA-EGR-01", "documento": "Registro y Control de Cuentas por Pagar", "notas": "", "estatus": "En Tesorería", "subestatus": "En revisión por Enlace"}, {"id": 60, "direccion": "Dirección de Patrimonio", "clave": "L-SFA-PAT-01", "documento": "Registro y Control de Bienes Muebles e Inmuebles", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 61, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-01", "documento": "Expedicion de Constancia de No Afectacion a Bienes del Dominio Publico", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 62, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-02", "documento": "Expedicion de Constancia de Identificacion de Areas Municipales", "notas": "", "estatus": "En Mejora Regulatoria", "subestatus": ""}, {"id": 63, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-03", "documento": "Altas de Bienes Muebles e Inmbuebles", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 64, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-ING-05", "documento": "Pago de Deducible en Caso de Siniestro", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 65, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-04", "documento": "Baja de Bienes", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 66, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-06", "documento": "Expedición de Visto Bueno de Recepción de Áreas Municipales Cedidas por Fraccionamientos en la Terminación de Obra y Liberación de Garantías Ante la Secretaría de Desarrollo Urbano Sostenible", "notas": "Cambio de normbre: Visto bueno areas cedidas por fraccionador", "estatus": "En Gestión", "subestatus": ""}, {"id": 67, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-07", "documento": "Cambio de Ubicacion de Bienes Muebles", "notas": "Cambio de normbre: Actualización de resguardante de bienes muebles", "estatus": "En Gestión", "subestatus": ""}, {"id": 68, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-08", "documento": "Proceso de Dictamen", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 69, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-09", "documento": "Indemnización de Bienes Muebles e Inmuebles", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 70, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-10", "documento": "Arrendamiento de Bienes Propiedad Municipal", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 71, "direccion": "Dirección de Patrimonio", "clave": "P-SFA-PAT-11", "documento": "Enajenación de Bienes Propiedad Municipal", "notas": "", "estatus": "En Gestión", "subestatus": ""}, {"id": 72, "direccion": "Dirección de Contabilidad y Cuenta Pública", "clave": "P-TMU-02", "documento": "EJERCICIO DEL RECURSO FEDERAL DEL RAMO 33 APORTACIONES", "notas": "PENDIENTE    ACTUALLIZAR", "estatus": "En Tesorería", "subestatus": "No iniciado"}];
+const STORAGE_KEY="tesoreria_tablero_documental_v2";
+const CUT_KEY="tesoreria_tablero_corte_v2";
+const statuses=["En Tesorería","En Mejora Regulatoria","En Gestión","Publicado","Baja"];
+const substatuses=["No iniciado","En elaboración/correcciones por el área","En revisión por Enlace"];
+const colors={"En Tesorería":"#f06c12","En Mejora Regulatoria":"#078e95","En Gestión":"#6c3ab5","Publicado":"#22833c","Baja":"#6d7580"};
+let docs=loadData();
 
-function loadData(){
- try{const saved=localStorage.getItem(STORAGE_KEY); return saved?JSON.parse(saved):structuredClone(seedData)}catch(e){return structuredClone(seedData)}
-}
+function loadData(){try{const s=localStorage.getItem(STORAGE_KEY);return s?JSON.parse(s):structuredClone(seedData)}catch(e){return structuredClone(seedData)}}
 function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(docs))}
-function fmtPct(n,d){return d?((n/d)*100).toFixed(1)+"%":"0.0%"}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function pct(n,d){return d?((n/d)*100).toFixed(1)+"%":"0.0%"}
 function active(){return docs.filter(d=>d.estatus!=="Baja")}
-function counts(){
+function getCounts(){
  const a=active(), total=a.length;
- const tes=a.filter(d=>d.estatus==="En Tesorería").length;
- const mejora=a.filter(d=>d.estatus==="En Mejora Regulatoria").length;
- const gestion=a.filter(d=>d.estatus==="En Gestión").length;
+ const tes=a.filter(d=>d.estatus==="En Tesorería");
+ const enlace=tes.filter(d=>d.subestatus==="En revisión por Enlace").length;
+ const area=tes.filter(d=>d.subestatus==="En elaboración/correcciones por el área").length;
+ const noini=tes.filter(d=>d.subestatus==="No iniciado").length;
+ const ges=a.filter(d=>d.estatus==="En Gestión").length;
+ const mej=a.filter(d=>d.estatus==="En Mejora Regulatoria").length;
  const pub=a.filter(d=>d.estatus==="Publicado").length;
- return {total,tes,mejora,gestion,ext:mejora+gestion,pub};
+ return {total,bajas:docs.length-total,tes:tes.length,enlace,area,noini,ges,mej,pub};
 }
-function updateCutDisplay(){
- let cut=localStorage.getItem(CUT_KEY);
- if(!cut){cut=new Date().toISOString();localStorage.setItem(CUT_KEY,cut)}
- const d=new Date(cut);
- const date=d.toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"});
- const time=d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
- document.getElementById("cut-date").textContent="Corte al "+date;
- document.getElementById("cut-time").textContent=time+" h";
- document.getElementById("snap-date").textContent=date;
- document.getElementById("snap-time").textContent=time+" h";
+function updateCut(){
+ let v=localStorage.getItem(CUT_KEY);if(!v){v=new Date().toISOString();localStorage.setItem(CUT_KEY,v)}
+ const d=new Date(v);document.getElementById("cut-date").textContent=d.toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"});
+ document.getElementById("cut-time").textContent=d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})+" h";
 }
-function setCutNow(){localStorage.setItem(CUT_KEY,new Date().toISOString());updateCutDisplay()}
+function setCutNow(){localStorage.setItem(CUT_KEY,new Date().toISOString());updateCut()}
 function updateDashboard(){
- const c=counts();
- document.getElementById("k-total").textContent=c.total;
- document.getElementById("k-tes").textContent=c.tes; document.getElementById("p-tes").textContent=fmtPct(c.tes,c.total);
- document.getElementById("k-ext").textContent=c.ext; document.getElementById("p-ext").textContent=fmtPct(c.ext,c.total);
- document.getElementById("split-ext").textContent=`Gestión ${c.gestion} · Mejora ${c.mejora}`;
- document.getElementById("k-pub").textContent=c.pub; document.getElementById("p-pub").textContent=fmtPct(c.pub,c.total);
- document.getElementById("leg-tes").textContent=c.tes; document.getElementById("leg-tes-p").textContent=fmtPct(c.tes,c.total);
- document.getElementById("leg-ext").textContent=c.ext; document.getElementById("leg-ext-p").textContent=fmtPct(c.ext,c.total);
- document.getElementById("leg-pub").textContent=c.pub; document.getElementById("leg-pub-p").textContent=fmtPct(c.pub,c.total);
- document.getElementById("bar-tes").style.width=(c.total?c.tes/c.total*100:0)+"%";
- document.getElementById("bar-ext").style.width=(c.total?c.ext/c.total*100:0)+"%";
- document.getElementById("bar-pub").style.width=(c.total?c.pub/c.total*100:0)+"%";
- document.getElementById("bar-tes").textContent=c.tes?fmtPct(c.tes,c.total):"";
- document.getElementById("bar-ext").textContent=c.ext?fmtPct(c.ext,c.total):"";
- document.getElementById("bar-pub").textContent=c.pub?fmtPct(c.pub,c.total):"";
- const dominant=[["En Tesorería",c.tes],["en revisión por Gestión o Mejora Regulatoria",c.ext],["publicado",c.pub]].sort((a,b)=>b[1]-a[1])[0];
- let msg;
- if(dominant[0].includes("Gestión")) msg=`El <strong>${fmtPct(c.ext,c.total)}</strong> de los documentos vigentes ya se encuentra en revisión por Gestión o Mejora Regulatoria.`;
- else if(dominant[0]==="Publicado") msg=`El proyecto alcanza <strong>${fmtPct(c.pub,c.total)}</strong> de documentos publicados.`;
- else msg=`El <strong>${fmtPct(c.tes,c.total)}</strong> de los documentos vigentes permanece en actividades internas de Tesorería.`;
- document.getElementById("message").innerHTML=msg;
- document.getElementById("narrative").innerHTML=`De ${c.total} documentos vigentes, <b>${c.ext}</b> ya salieron de la etapa interna de Tesorería y están en revisión por Gestión o Mejora Regulatoria; <b>${c.pub}</b> ya fueron publicados. El porcentaje de publicaciones por sí solo no representa todo el avance operativo alcanzado.`;
+ const c=getCounts();
+ const map={"s-total":c.total,"s-bajas":c.bajas,"s-tes":c.tes,"sp-tes":pct(c.tes,c.total),"s-enlace":c.enlace,"s-area":c.area,"s-noini":c.noini,
+ "s-ges":c.ges,"sp-ges":pct(c.ges,c.total),"s-mej":c.mej,"sp-mej":pct(c.mej,c.total),"s-pub":c.pub,"sp-pub":pct(c.pub,c.total),
+ "d-total":c.total,"l-tes":c.tes,"l-ges":c.ges,"l-mej":c.mej,"l-pub":c.pub};
+ Object.entries(map).forEach(([id,v])=>document.getElementById(id).textContent=v);
+ const p1=c.total?c.tes/c.total*100:0,p2=c.total?c.ges/c.total*100:0,p3=c.total?c.mej/c.total*100:0,p4=100-p1-p2-p3;
+ document.getElementById("donut").style.background=`conic-gradient(var(--orange) 0 ${p1}%,var(--purple) ${p1}% ${p1+p2}%,var(--teal) ${p1+p2}% ${p1+p2+p3}%,var(--green) ${p1+p2+p3}% 100%)`;
+ const outside=c.ges+c.mej;
+ document.getElementById("exec-message").innerHTML=`<b>Conclusión ejecutiva:</b> ${outside} de ${c.total} documentos vigentes (<strong>${pct(outside,c.total)}</strong>) ya se encuentran en revisión por Gestión o Mejora Regulatoria. Dentro de Tesorería, <b>${c.enlace}</b> están en revisión por Enlace y <b>${c.area}</b> permanecen en elaboración o correcciones por las áreas responsables.`;
 }
 function filtered(){
- const q=document.getElementById("search").value.trim().toLowerCase();
- const dir=document.getElementById("dir-filter").value;
- const st=document.getElementById("status-filter").value;
- return docs.filter(d=>{const hay=[d.clave,d.documento,d.direccion,d.notas,d.estatus].join(" ").toLowerCase();return(!q||hay.includes(q))&&(!dir||d.direccion===dir)&&(!st||d.estatus===st)})
+ const q=document.getElementById("search").value.trim().toLowerCase(),dir=document.getElementById("dir-filter").value,st=document.getElementById("status-filter").value;
+ return docs.filter(d=>{const hay=[d.clave,d.documento,d.direccion,d.notas,d.estatus,d.subestatus].join(" ").toLowerCase();return(!q||hay.includes(q))&&(!dir||d.direccion===dir)&&(!st||d.estatus===st)})
 }
 function render(){
- const list=filtered(), tbody=document.getElementById("tbody");
- tbody.innerHTML=list.map((d,i)=>`<tr class="${d.estatus==="Baja"?"baja":""}">
- <td>${i+1}</td><td><b>${esc(d.clave)}</b></td><td>${esc(d.documento)}</td>
- <td>${esc(d.direccion)}</td>
+ const list=filtered();document.getElementById("tbody").innerHTML=list.map((d,i)=>`<tr class="${d.estatus==="Baja"?"baja":""}">
+ <td>${i+1}</td><td><b>${esc(d.clave)}</b></td><td>${esc(d.documento)}</td><td>${esc(d.direccion)}</td>
  <td><select class="status" data-id="${d.id}" style="color:${colors[d.estatus]};border-color:${colors[d.estatus]}">${statuses.map(s=>`<option ${s===d.estatus?"selected":""}>${s}</option>`).join("")}</select></td>
- <td><span class="pill" style="background:${colors[d.estatus]}18;color:${colors[d.estatus]}">${d.estatus==="En Tesorería"?(d.subestatus||"Revisión interna"):d.estatus}</span></td>
+ <td>${d.estatus==="En Tesorería"?`<select class="substatus" data-id="${d.id}">${substatuses.map(s=>`<option ${s===d.subestatus?"selected":""}>${s}</option>`).join("")}</select>`:`<span class="pill" style="background:${colors[d.estatus]}18;color:${colors[d.estatus]}">${d.estatus}</span>`}</td>
  <td>${esc(d.notas||"—")}</td></tr>`).join("");
  document.getElementById("summary").textContent=`Mostrando ${list.length} de ${docs.length} registros; ${active().length} vigentes y ${docs.length-active().length} en baja.`;
- document.querySelectorAll(".status").forEach(s=>s.addEventListener("change",e=>{const d=docs.find(x=>x.id===Number(e.target.dataset.id));d.estatus=e.target.value;if(d.estatus!=="En Tesorería")d.subestatus="";saveData();updateDashboard();render()}));
+ document.querySelectorAll(".status").forEach(el=>el.addEventListener("change",e=>{const d=docs.find(x=>x.id===Number(e.target.dataset.id));d.estatus=e.target.value;if(d.estatus==="En Tesorería"&&!d.subestatus)d.subestatus="En revisión por Enlace";if(d.estatus!=="En Tesorería")d.subestatus="";saveData();updateDashboard();render()}));
+ document.querySelectorAll(".substatus").forEach(el=>el.addEventListener("change",e=>{const d=docs.find(x=>x.id===Number(e.target.dataset.id));d.subestatus=e.target.value;saveData();updateDashboard();render()}));
 }
 function populate(){
- const dirs=[...new Set(docs.map(d=>d.direccion))].sort((a,b)=>a.localeCompare(b,"es"));
- const df=document.getElementById("dir-filter"); dirs.forEach(d=>df.insertAdjacentHTML("beforeend",`<option value="${esc(d)}">${esc(d)}</option>`));
- const sf=document.getElementById("status-filter"); statuses.forEach(s=>sf.insertAdjacentHTML("beforeend",`<option>${s}</option>`));
+ [...new Set(docs.map(d=>d.direccion))].sort((a,b)=>a.localeCompare(b,"es")).forEach(d=>document.getElementById("dir-filter").insertAdjacentHTML("beforeend",`<option value="${esc(d)}">${esc(d)}</option>`));
+ statuses.forEach(s=>document.getElementById("status-filter").insertAdjacentHTML("beforeend",`<option>${s}</option>`));
 }
-function clearFilters(){document.getElementById("search").value="";document.getElementById("dir-filter").value="";document.getElementById("status-filter").value="";render()}
-function resetData(){if(confirm("¿Restablecer todos los estatus a la información original del archivo?")){docs=structuredClone(seedData);saveData();setCutNow();updateDashboard();render()}}
-async function downloadSnapshot(){
- try{const canvas=await html2canvas(document.getElementById("snapshot"),{scale:2,backgroundColor:"#ffffff",useCORS:true});const a=document.createElement("a");a.download="Estatus_Ejecutivo_Tesoreria.png";a.href=canvas.toDataURL("image/png");a.click()}catch(e){alert("No fue posible generar la imagen. Intenta abrir el tablero con conexión a internet.")}
-}
+function clearFilters(){["search","dir-filter","status-filter"].forEach(id=>document.getElementById(id).value="");render()}
+function resetData(){if(confirm("¿Restablecer los estatus a la información original?")){docs=structuredClone(seedData);saveData();setCutNow();updateDashboard();render()}}
+async function downloadImage(){const c=await html2canvas(document.getElementById("full-report"),{scale:1.5,backgroundColor:"#ffffff",useCORS:true,windowWidth:1680});const a=document.createElement("a");a.href=c.toDataURL("image/png");a.download="Tablero_Ejecutivo_Tesoreria.png";a.click()}
 async function downloadPDF(){
- const btns=document.querySelector(".toolbar"); 
- try{
-   const {jsPDF}=window.jspdf;
-   const element=document.getElementById("full-report");
-   const canvas=await html2canvas(element,{scale:1.35,backgroundColor:"#ffffff",useCORS:true,windowWidth:1680});
-   const img=canvas.toDataURL("image/jpeg",0.92);
-   const pdf=new jsPDF("l","mm","a4");
-   const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-   const iw=pw-10, ih=canvas.height*iw/canvas.width;
-   let y=5, remaining=ih;
-   pdf.addImage(img,"JPEG",5,y,iw,ih);
-   remaining-=ph-10;
-   while(remaining>0){pdf.addPage();y=5- (ih-remaining);pdf.addImage(img,"JPEG",5,y,iw,ih);remaining-=ph-10}
-   pdf.save("Concentrado_Seguimiento_Documental_Tesoreria.pdf");
- }catch(e){window.print()}
+ try{const {jsPDF}=window.jspdf;const c=await html2canvas(document.getElementById("full-report"),{scale:1.25,backgroundColor:"#ffffff",useCORS:true,windowWidth:1680});const img=c.toDataURL("image/jpeg",0.92);const pdf=new jsPDF("l","mm","a4");const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),iw=pw-10,ih=c.height*iw/c.width;let y=5,rem=ih;pdf.addImage(img,"JPEG",5,y,iw,ih);rem-=ph-10;while(rem>0){pdf.addPage();y=5-(ih-rem);pdf.addImage(img,"JPEG",5,y,iw,ih);rem-=ph-10}pdf.save("Concentrado_Seguimiento_Documental_Tesoreria.pdf")}catch(e){window.print()}
 }
 function exportCSV(){
- const rows=[["Clave","Documento","Dirección responsable","Estatus","Notas"],...docs.map(d=>[d.clave,d.documento,d.direccion,d.estatus,d.notas])];
- const csv=rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
- const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Seguimiento_Documental_Tesoreria.csv";a.click();URL.revokeObjectURL(a.href)
+ const rows=[["Clave","Documento","Dirección","Etapa principal","Detalle Tesorería","Notas"],...docs.map(d=>[d.clave,d.documento,d.direccion,d.estatus,d.subestatus,d.notas])];
+ const csv=rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");const b=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="Seguimiento_Documental_Tesoreria.csv";a.click();URL.revokeObjectURL(a.href)
 }
+document.getElementById("btn-cut").addEventListener("click",setCutNow);
+document.getElementById("btn-pdf").addEventListener("click",downloadPDF);
+document.getElementById("btn-img").addEventListener("click",downloadImage);
+document.getElementById("btn-csv").addEventListener("click",exportCSV);
+document.getElementById("btn-reset").addEventListener("click",resetData);
+document.getElementById("btn-clear").addEventListener("click",clearFilters);
 ["search","dir-filter","status-filter"].forEach(id=>document.getElementById(id).addEventListener("input",render));
-populate();updateCutDisplay();updateDashboard();render();
+populate();updateCut();updateDashboard();render();
 </script>
 </body>
 </html>
